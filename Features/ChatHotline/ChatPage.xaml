@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:GBV_Shield.Converters"
+             x:Class="GBV_Shield.Features.ChatHotline.ChatPage"
+             Title="AI Support Chat">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Local access to converters -->
+            <converters:MessageBubbleColorConverter x:Key="MessageBubbleColorConverter"/>
+            <converters:MessageBubbleAlignmentConverter x:Key="MessageBubbleAlignmentConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="10" RowSpacing="8">
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="AI support, not a human counsellor" FontAttributes="Bold" />
+            <Label Text="For immediate danger, use SOS or Nearby Help. Chat cannot dispatch help." FontSize="12" />
+            <Label Text="Messages and recent replies go through our server to OpenAI. Avoid names, IDs and exact addresses. Chat clears when you leave; provider logs may remain." FontSize="12" />
+            <HorizontalStackLayout>
+                <CheckBox IsChecked="{Binding HasConsented}" />
+                <Label Text="I agree to use AI chat" VerticalOptions="Center" />
+                <Button Text="Clear" Command="{Binding ClearChatCommand}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <!-- ✅ Chat Messages -->
+        <CollectionView ItemsSource="{Binding Messages}" Grid.Row="1" ItemsUpdatingScrollMode="KeepLastItemInView">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="10" Margin="0,4" StrokeShape="RoundRectangle 15"
+                           BackgroundColor="{Binding IsSelf, Converter={StaticResource MessageBubbleColorConverter}}"
+                           HorizontalOptions="{Binding IsSelf, Converter={StaticResource MessageBubbleAlignmentConverter}}">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding SenderId}" FontSize="11" TextColor="White" />
+                            <Label Text="{Binding Text}" TextColor="White"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- ✅ Input Box -->
+        <VerticalStackLayout Grid.Row="2">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            <Label Text="{Binding StatusText}" FontSize="12" />
+        </VerticalStackLayout>
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Padding="5">
+            <Entry Text="{Binding OutgoingText}" MaxLength="2000" Placeholder="Message AI support..." />
+            <Button Text="Send" Command="{Binding SendMessageCommand}" Grid.Column="1"/>
+        </Grid>
+    </Grid>
+</ContentPage>
